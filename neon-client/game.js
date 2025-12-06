@@ -101,6 +101,12 @@ const ui = {
 
             location.reload(); // Reset total
         }, 500);
+    },
+
+    exitGame() {
+        if (confirm("¿Salir al menú?")) {
+            location.reload(); // Forma más limpia de resetear el estado
+        }
     }
 };
 

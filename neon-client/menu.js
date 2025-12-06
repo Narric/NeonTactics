@@ -4,10 +4,8 @@ const menu = {
         avatar: 1,
         mmr: 1000,
         gold: 0,
-        inventory: ['default'], // Inventario base
-        equippedColor: 'default',
-        equippedFX: null,
-        equippedAvatar: null
+        inventory: ['default'],
+        equippedColor: 'default'
     },
     currentModeIndex: 0,
     modes: [
@@ -20,35 +18,30 @@ const menu = {
         this.runLoadingSequence();
         this.setupAvatarSelector();
         this.updateModeDisplay();
+        this.checkLoginStatus();
     },
 
-    // --- 1. LOADING SCREEN ---
+    // 1. CARGA
     runLoadingSequence() {
         const bar = document.getElementById('bar-fill');
-        const textClip = document.getElementById('text-clipper');
+        const clip = document.getElementById('text-clipper');
         const status = document.getElementById('loading-status');
 
-        if (!bar || !textClip) return; // Seguridad
-
-        setTimeout(() => { bar.style.width = "30%"; textClip.style.width = "30%"; status.innerText = "Conectando..."; }, 500);
-        setTimeout(() => { bar.style.width = "70%"; textClip.style.width = "70%"; status.innerText = "Cargando assets..."; }, 1500);
+        setTimeout(() => { bar.style.width = "40%"; clip.style.width = "40%"; status.innerText = "CONECTANDO..."; }, 500);
+        setTimeout(() => { bar.style.width = "80%"; clip.style.width = "80%"; status.innerText = "CARGANDO ASSETS..."; }, 1500);
         setTimeout(() => {
-            bar.style.width = "100%"; textClip.style.width = "100%"; status.innerText = "¡Listo!";
+            bar.style.width = "100%"; clip.style.width = "100%"; status.innerText = "¡LISTO!";
             setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    this.checkLoginStatus();
-                }, 500);
-            }, 800);
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 500);
         }, 2500);
     },
 
-    // --- 2. LOGIN & DATA ---
+    // 2. LOGIN
     checkLoginStatus() {
-        const savedUser = localStorage.getItem('neonUser');
-        if (savedUser) {
-            this.user = JSON.parse(savedUser);
+        const saved = localStorage.getItem('neonUser');
+        if (saved) {
+            this.user = JSON.parse(saved);
             this.showMainMenu();
         } else {
             document.getElementById('login-screen').classList.remove('hidden');
@@ -56,30 +49,23 @@ const menu = {
     },
 
     setupAvatarSelector() {
-        const avatars = document.querySelectorAll('.avatar-option');
-        avatars.forEach(av => {
+        document.querySelectorAll('.avatar-option').forEach(av => {
             av.addEventListener('click', () => {
-                avatars.forEach(a => a.classList.remove('selected'));
+                document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
                 av.classList.add('selected');
             });
         });
     },
 
     loginGuest() {
-        const nameInput = document.getElementById('username-input').value || "Guest";
-        const avatarId = document.querySelector('.avatar-option.selected').dataset.id;
-
-        this.user.name = nameInput;
-        this.user.avatar = avatarId;
-        // Respetamos los valores por defecto si no existen
-        if (!this.user.inventory) this.user.inventory = ['default'];
-
+        const name = document.getElementById('username-input').value || "Guest";
+        this.user.name = name;
         this.saveUser();
         document.getElementById('login-screen').classList.add('hidden');
         this.showMainMenu();
     },
 
-    loginCloud() { alert("Pronto disponible con Firebase"); this.loginGuest(); },
+    loginCloud() { alert("Pronto disponible"); this.loginGuest(); },
 
     showMainMenu() {
         document.getElementById('main-menu').classList.remove('hidden');
@@ -92,17 +78,16 @@ const menu = {
     },
 
     updateUI() {
-        // Actualizar header del menú principal
         document.getElementById('user-name').innerText = this.user.name;
         document.getElementById('user-mmr').innerText = this.user.mmr;
         document.getElementById('user-gold').innerText = this.user.gold;
 
-        // Actualizar header de la tienda también
+        // Tienda
         const shopGold = document.getElementById('shop-gold-display');
         if (shopGold) shopGold.innerText = this.user.gold;
     },
 
-    // --- 3. CARRUSEL DE MODOS ---
+    // 3. CARRUSEL
     nextMode() {
         this.currentModeIndex = (this.currentModeIndex + 1) % this.modes.length;
         this.updateModeDisplay();
@@ -117,98 +102,62 @@ const menu = {
         document.getElementById('mode-title').innerText = mode.title;
         document.getElementById('mode-icon').innerText = mode.icon;
 
-        const descEl = document.getElementById('mode-desc');
         const diffSel = document.getElementById('difficulty-selector');
+        const desc = document.getElementById('mode-desc');
 
         if (mode.hasDifficulty) {
-            descEl.classList.add('hidden');
+            desc.classList.add('hidden');
             diffSel.classList.remove('hidden');
         } else {
-            descEl.innerText = mode.desc;
-            descEl.classList.remove('hidden');
+            desc.innerText = mode.desc;
+            desc.classList.remove('hidden');
             diffSel.classList.add('hidden');
         }
     },
 
-    // --- LÓGICA DEL SELECTOR PERSONALIZADO ---
+    // 4. SELECTOR DIFICULTAD
     toggleDifficultyDropdown() {
-        const wrapper = document.querySelector('.custom-select-wrapper');
-        const options = document.getElementById('difficulty-options');
-
-        // Alternar visibilidad
-        if (options.classList.contains('hidden')) {
-            options.classList.remove('hidden');
-            wrapper.classList.add('open');
-        } else {
-            options.classList.add('hidden');
-            wrapper.classList.remove('open');
-        }
+        const opts = document.getElementById('difficulty-options');
+        opts.classList.toggle('hidden');
     },
-
-    selectDifficulty(value, text) {
-        // 1. Actualizar texto visual
+    selectDifficulty(val, text) {
         document.getElementById('selected-difficulty-text').innerText = text;
-
-        // 2. Actualizar el select oculto (para que game.js lo lea)
-        document.getElementById('diff-select').value = value;
-
-        // 3. Actualizar estilo visual de la lista
+        document.getElementById('diff-select').value = val;
+        this.toggleDifficultyDropdown();
+        // Marca visual
         document.querySelectorAll('.custom-option').forEach(opt => {
             opt.classList.remove('selected');
             if (opt.innerText === text) opt.classList.add('selected');
         });
-
-        // 4. Cerrar menú
-        this.toggleDifficultyDropdown();
-
-        // Detener propagación para que no se reabra instantáneamente si hubo lag
-        event.stopPropagation();
     },
 
+    // 5. LANZAR JUEGO
     launchGame() {
         const mode = this.modes[this.currentModeIndex];
-
-        if (mode.id === 'pve') {
-            const diff = document.getElementById('diff-select').value;
-            game.startGame(diff);
-        } else if (mode.id === 'pvp') {
-            game.startPvP();
-        } else if (mode.id === 'online') {
-            game.startOnline();
-        }
+        // Pasamos control a game.js
+        if (mode.id === 'pve') game.startGame(document.getElementById('diff-select').value);
+        else if (mode.id === 'pvp') game.startPvP();
+        else game.startOnline();
     },
 
-    // --- 4. EXTRAS & IAP ---
-    watchAd() {
-        alert("📺 Viendo anuncio...\n\n¡Gracias! +15 Monedas recibidas.");
-        this.user.gold += 15;
-        this.saveUser();
-    },
-
-    // Nueva función: Abrir Ranking
-    showRanking() {
-        if (typeof ranking !== 'undefined') ranking.open();
-        else alert("Sistema de Ranking cargando...");
-    },
-
-    // --- 5. TIENDA DE MONEDAS (REAL MONEY) ---
-    openIAP() {
-        document.getElementById('iap-screen').classList.remove('hidden');
-    },
-
-    closeIAP() {
-        document.getElementById('iap-screen').classList.add('hidden');
-    },
+    // 6. IAP & RANKING
+    openIAP() { document.getElementById('iap-screen').classList.remove('hidden'); },
+    closeIAP() { document.getElementById('iap-screen').classList.add('hidden'); },
 
     simulatePurchase(amount) {
-        // Aquí conectaremos con la API de pagos de Google Play / Apple
-        if (confirm(`¿Confirmar compra de ${amount} monedas? (Simulación)`)) {
+        if (confirm(`¿Comprar ${amount} monedas?`)) {
             this.user.gold += amount;
             this.saveUser();
-            alert("¡Compra exitosa! Monedas añadidas.");
             this.closeIAP();
         }
+    },
+
+    showRanking() {
+        if (typeof ranking !== 'undefined') ranking.open();
+    },
+    watchAd() {
+        alert("📺 +15 Monedas");
+        this.user.gold += 15;
+        this.saveUser();
     }
 };
-
-document.addEventListener('DOMContentLoaded', () => menu.init());
