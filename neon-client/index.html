@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Neon Tactics: Competitive</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="loading-screen">
+        <div class="loader-content">
+
+            <div class="visual-group">
+
+                <div class="neon-text-box">
+                    <span class="text-layer text-ghost">NEON TACTICS</span>
+                    <div class="text-clipper" id="text-clipper">
+                        <span class="text-layer text-lit">NEON TACTICS</span>
+                    </div>
+                </div>
+
+                <div class="bar-box">
+                    <div class="bar-fill" id="bar-fill"></div>
+                </div>
+
+            </div>
+
+            <p id="loading-status">INICIALIZANDO...</p>
+        </div>
+    </div>
+
+    <div id="login-screen" class="hidden">
+        <div class="login-card">
+            <h2>IDENTIFÍCATE</h2>
+            <div class="avatar-selector">
+                <img src="assets/avatars/av1.png" class="avatar-option selected" data-id="1" alt="Av1"> <img
+                    src="assets/avatars/av2.png" class="avatar-option" data-id="2" alt="Av2">
+                <img src="assets/avatars/av3.png" class="avatar-option" data-id="3" alt="Av3">
+            </div>
+            <input type="text" id="username-input" placeholder="Nombre de Usuario" maxlength="12">
+
+            <button class="btn-primary" onclick="menu.loginGuest()">ENTRAR COMO INVITADO</button>
+            <div class="divider">O</div>
+            <button class="btn-secondary" onclick="menu.loginCloud()">CREAR CUENTA / LOGIN</button>
+        </div>
+    </div>
+
+    <div id="main-menu" class="hidden">
+
+        <header class="dashboard-header">
+            <div class="profile-info">
+                <div class="avatar-frame">
+                    <img id="user-avatar" src="" alt="User">
+                </div>
+                <div class="user-stats">
+                    <h3 id="user-name">Guest</h3>
+                    <div class="mmr-badge">
+                        <i class="fa-solid fa-square"></i> <span id="user-mmr">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-display">
+                <span id="user-gold">0</span> <i class="fa-solid fa-coins"></i>
+                <button class="btn-add" onclick="menu.openIAP()">+</button>
+            </div>
+        </header>
+
+        <section class="mode-carousel">
+
+            <div class="carousel-wrapper">
+                <button class="carousel-arrow left" onclick="menu.prevMode()">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div class="mode-card" id="mode-display">
+                    <div class="mode-icon" id="mode-icon">🤖</div>
+                    <h2 id="mode-title">CAMPAÑA</h2>
+                    <p id="mode-desc">Enfréntate a la IA.</p>
+                    <div id="difficulty-selector" class="hidden">
+
+                        <div class="custom-select-wrapper" onclick="menu.toggleDifficultyDropdown()">
+                            <div class="custom-select-trigger">
+                                <span id="selected-difficulty-text">FÁCIL</span>
+                                <div class="arrow"></div>
+                            </div>
+
+                            <div class="custom-options hidden" id="difficulty-options">
+                                <div class="custom-option selected" onclick="menu.selectDifficulty('easy', 'FÁCIL')">
+                                    FÁCIL</div>
+                                <div class="custom-option" onclick="menu.selectDifficulty('medium', 'MEDIO')">MEDIO
+                                </div>
+                                <div class="custom-option" onclick="menu.selectDifficulty('hard', 'DIFÍCIL')">DIFÍCIL
+                                </div>
+                                <div class="custom-option" onclick="menu.selectDifficulty('nightmare', 'PESADILLA')">
+                                    PESADILLA</div>
+                            </div>
+                        </div>
+
+                        <select id="diff-select" style="display: none;">
+                            <option value="easy" selected>Fácil</option>
+                            <option value="medium">Medio</option>
+                            <option value="hard">Difícil</option>
+                            <option value="nightmare">Pesadilla</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <button class="carousel-arrow right" onclick="menu.nextMode()">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <button id="btn-play-big" onclick="menu.launchGame()">JUGAR</button>
+
+        </section>
+
+        <footer class="dock-menu">
+            <div class="dock-item" onclick="ui.openShop()">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Tienda</span>
+            </div>
+            <div class="dock-item" onclick="inventory.open()">
+                <i class="fa-solid fa-suitcase"></i>
+                <span>Inventario</span>
+            </div>
+            <div class="dock-item" onclick="menu.showRanking()">
+                <i class="fa-solid fa-trophy"></i>
+                <span>Ranking</span>
+            </div>
+            <div class="dock-item promo" onclick="menu.watchAd()">
+                <i class="fa-solid fa-video"></i>
+                <span>+15</span>
+            </div>
+        </footer>
+    </div>
+
+    <div id="game-interface" class="hidden">
+        <div id="match-header">
+            <button class="btn-small" onclick="location.reload()"><i class="fa-solid fa-house"></i></button>
+            <div class="score-board">
+                <span class="p1-score">P1: <span id="score1">0</span></span>
+                <span class="vs">VS</span>
+                <span class="p2-score">P2: <span id="score2">0</span></span>
+            </div>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="gameCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <div id="ai-thinking" class="hidden">CALCULANDO...</div>
+    </div>
+
+    <div id="shop-screen" class="hidden">
+
+        <div class="shop-header">
+            <button class="btn-back" onclick="ui.closeShop()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="shop-title">MERCADO NEÓN</div>
+            <div class="currency-display">
+                <span id="shop-gold-display">0</span> <i class="fa-solid fa-coins"></i>
+            </div>
+        </div>
+
+        <div class="shop-tabs">
+            <button class="tab-btn active" onclick="shop.switchTab('neon')">NEÓN</button>
+            <button class="tab-btn" onclick="shop.switchTab('fx')">FX</button>
+            <button class="tab-btn" onclick="shop.switchTab('profile')">PERFIL</button>
+        </div>
+
+        <div id="shop-container">
+        </div>
+
+        <div id="buy-modal" class="hidden">
+            <div class="modal-content">
+                <h3 id="modal-item-name">Nombre Item</h3>
+                <div class="modal-preview" id="modal-item-preview"></div>
+                <p>¿Comprar por <span id="modal-item-price" class="gold-text">0</span> monedas?</p>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="shop.closeModal()">CANCELAR</button>
+                    <button class="btn-confirm" id="btn-confirm-buy">COMPRAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="iap-screen" class="modal-overlay hidden">
+        <div class="iap-container">
+            <div class="iap-header">
+                <h2>TESORO</h2>
+                <button class="btn-close-x" onclick="menu.closeIAP()"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+            <div class="iap-grid">
+                <div class="iap-card" onclick="ui.simulatePurchase(100)">
+                    <div class="iap-icon small"><i class="fa-solid fa-coins"></i></div>
+                    <div class="iap-amount">100</div>
+                    <div class="iap-price">0.99 €</div>
+                </div>
+                <div class="iap-card popular" onclick="ui.simulatePurchase(500)">
+                    <div class="badge">POPULAR</div>
+                    <div class="iap-icon medium"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <div class="iap-amount">500</div>
+                    <div class="iap-price">2.99 €</div>
+                </div>
+                <div class="iap-card best" onclick="ui.simulatePurchase(2000)">
+                    <div class="badge">MEJOR</div>
+                    <div class="iap-icon large"><i class="fa-solid fa-chest"></i></div>
+                    <div class="iap-amount">2.000</div>
+                    <div class="iap-price">9.99 €</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="inventory-screen" class="hidden">
+
+        <div class="shop-header">
+            <button class="btn-back" onclick="inventory.close()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="shop-title">MI EQUIPO</div>
+            <div style="width: 24px"></div>
+        </div>
+
+        <div class="inventory-preview-zone">
+            <div class="preview-avatar-container">
+                <div id="preview-frame" class="preview-frame">
+                    <img id="preview-img" src="" alt="Avatar">
+                </div>
+                <div id="preview-fx" class="preview-fx"></div>
+            </div>
+            <p id="preview-name">Guest</p>
+        </div>
+
+        <div class="shop-tabs">
+            <button class="inv-tab-btn active" onclick="inventory.switchTab('neon')">NEÓN</button>
+            <button class="inv-tab-btn" onclick="inventory.switchTab('fx')">FX</button>
+            <button class="inv-tab-btn" onclick="inventory.switchTab('profile')">PERFIL</button>
+        </div>
+
+        <div id="inventory-container">
+        </div>
+    </div>
+
+    <div id="ranking-screen" class="hidden">
+
+        <div class="shop-header">
+            <button class="btn-back" onclick="ranking.close()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="shop-title">CLASIFICACIÓN</div>
+            <div style="width: 24px"></div>
+        </div>
+
+        <div class="shop-tabs">
+            <button class="rank-tab-btn active" onclick="ranking.switchTab('global')">GLOBAL</button>
+            <button class="rank-tab-btn" onclick="ranking.switchTab('nightmare')">PESADILLA</button>
+        </div>
+
+        <div id="ranking-podium">
+        </div>
+
+        <div id="ranking-list">
+        </div>
+
+        <div id="user-rank-anchor">
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="i18n.js"></script>
+    <script src="menu.js"></script>
+    <script src="game.js"></script>
+    <script src="shop.js"></script>
+    <script src="inventory.js"></script>
+    <script src="ranking.js"></script>
+</body>
+
+</html>
